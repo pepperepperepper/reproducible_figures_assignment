@@ -28,8 +28,8 @@ write.csv(penguins_raw, "data/penguins_raw.csv")
 penguins_raw <- read.csv("data/penguins_raw.csv")
 
 # Load the functions files into the document
-source("functions/cleaning_penguins.r")
-source("functions/plotting_penguins.r")
+source("functions/cleaning_penguins.R")
+source("functions/plotting_penguins.R")
 
 # Clean the penguins_raw data
 penguins_clean_q1 <- penguins_raw %>%
@@ -294,11 +294,20 @@ My partner could use the summary() function only once in their code. Currently, 
 
 It would be easy to alter my partner’s figure because the code is presented clearly in the .rmd file and the code for each figure is found in its own code chunk. It may be a little clearer if these chunks were labelled for the figure they are generating and if the object created was named with more information (e.g. lm_graph and lm_combined_graph could get mixed up) but the alteration is simple.
 
-### d) Reflect on your own code based on your experience with your partner's code and their review of yours. (300-500 words)
+### d) Reflect on your own code based on your experience with your partner's code and their review of yours. (300-500 words)  
 
-#### *What improvements did they suggest, and do you agree?*
+#### *What improvements did they suggest, and do you agree?*  
+My partner suggested I add more explanations of what I was doing between code chunks to make it more understandable to someone with less coding knowledge. I agree with their comment because I focused mainly on the code and writing the stages of the analysis and did not spend much time explaining the need to do certain actions. Adding these explanations in would also aid me in the future if I forget why I used certain chunks or the purpose of completing actions, e.g. cleaning. Their detailed explanation during their experimentation with different figures highlighted to me that I needed to explain how some of my functions are used.    
+
+They also note that I needed to change .r -> .R when I load my functions files into the document because it did not run for them. Although it worked for me during analysis, I checked the files in my functions folder and saw that the files were indeed .R, so I made the edits.
 
 #### *What did you learn about writing code for other people?*
+I learnt that writing code for other people and ensuring that the analysis is reproducible and replicable requires discipline, a clear structure, and being thorough and concise in code and explanations.   
+
+Throughout the assignment, I was conscious of the fact that this was going to be run in another person's computer, so I aimed to keep the analysis as short as possible and keep my workspace tidy. I also wanted to be extra careful about following good naming practices and about where I placed my saved files and figures so that it can be seamlessly transferred to the other person's computer. I was extra careful about saving my file in Cloud Storage to make sure no data would be lost and I regularly attempted knitting my file to ensure that code was running smoothly. I also kept wanting to include small hashtag explanations to note the reasoning behind some of my actions and to better explain my thought process.   
+
+Through feedback, I learnt that I needed to include additional explanations to make my data pipeline even clear to others, and so I also learnt that being concise should not be at the expense of making sure my code is understandable to anyone aiming to reproduce and replicate my results.  
+
 
 ## References
 ***
