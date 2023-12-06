@@ -1,0 +1,309 @@
+---
+title: "Homework Assignment"
+output:
+  html_document:
+    theme: journal
+    toc: true
+    toc_float: true
+    toc_depth: 4
+---
+
+## QUESTION 01: Data Visualisation for Science Communication
+***
+### a) Provide your figure here:
+***
+```{r set-up-the-workspace, echo=FALSE, results='hide', message=FALSE, warning=FALSE}
+# Install and load the necessary packages
+install.packages(c("ggplot2", "palmerpenguins", "dplyr", "janitor", "magrittr", "ragg", "svglite"), repos = "https://cran.ma.imperial.ac.uk/")
+library(ggplot2)
+library(palmerpenguins)
+library(dplyr)
+library(janitor) #for data cleaning
+library(magrittr) #for the forward pipe operator
+library(ragg) #for .png file saving
+library(svglite) # for svg file saving
+
+# Load in the data
+write.csv(penguins_raw, "data/penguins_raw.csv")
+penguins_raw <- read.csv("data/penguins_raw.csv")
+
+# Load the functions files into the document
+source("functions/cleaning_penguins.r")
+source("functions/plotting_penguins.r")
+
+# Clean the penguins_raw data
+penguins_clean_q1 <- penguins_raw %>%
+  clean_column_names() %>%
+  shorten_species() %>%
+  remove_empty_columns_rows() %>%
+  remove_NA()
+
+# Save the penguins_clean data
+write.csv(penguins_clean_q1, "data/penguins_clean_q1.csv")
+```
+
+#### The bad figure
+```{r bad-figure-code, echo=FALSE}
+ggplot(penguins_clean_q1, aes(x = body_mass_g)) +
+  geom_histogram(binwidth = 975, alpha = 1, aes(y = after_stat(count), fill = after_stat(count)), position = "identity", color = "yellow") + 
+  scale_fill_gradient(low = "green", high = "red") +
+  scale_y_log10() +
+  labs(title = "Body mass histogram",
+       subtitle = "For Adelie, Chinstrap and Gentoo Penguins",
+       x = "Body mass (g)",
+       y = "Frequency")
+```
+
+### b) Write about how your design choices mislead the reader about the underlying data (200-300 words).
+***
+The histogram width is too large/there are too few classes; a large interval width smoothens the distribution and masks peaks in the data (Whitlock & Schluter, 2020). Although having too many classes would produce too many peaks, a compromise needs to be made. A better histogram could use e.g., Sturges’ rule (Scott, 2009) to find the ideal number of classes. The histogram presents too much data; the figure does not separate the different species and therefore also hides the different species body mass distributions by creating an average.
+
+The classes also do not align perfectly with the x-axis scale so it difficult to read the histogram. The x-axis also does not show any increments so it is difficult to estimate the size of the class to work out the frequency. The histogram uses a logarithmic scale, which is unnecessary for this data because the frequency does not span multiple orders of magnitude. There is also no label to indicate that it is a logarithmic scale. The log-scale masks the normal distribution of body mass, reduces the difference between classes, and makes interpreting the data more difficult than it needs to be. 
+Additionally, the colour choice is eye-straining and the red-green combination is not colour-blind friendly, which prevents accessibility of this data (Crameri, 2020; Katsnelson, 2021). The alpha value could be lower to make the histogram more comfortable to view and to see the underlying grid.
+
+To illustrate the difference, see below for a corrected version.  
+
+#### The improved figure
+```{r better-figure-code, echo=FALSE}
+ggplot(penguins_clean_q1, aes(x = body_mass_g)) +
+  geom_histogram(binwidth = 190, aes(fill = species), alpha = 0.5, position = "identity") + 
+  scale_fill_manual(values = c("cornflowerblue","darkolivegreen2","darkorange")) +
+  labs(title = "Histogram showing the distribution of ",
+       subtitle = "For Adelie, Chinstrap and Gentoo Penguins",
+       x = "Body mass (g)",
+       y = "Frequency")
+```
+
+## QUESTION 2: Data Pipeline
+***
+
+### Introduction
+This question continues to use the _Palmer Penguins_ dataset, which contains size measurements of three penguin species (Adelie, Gentoo, and Chinstrap) in the Palmer archipelago in Antarctica. 
+
+This analysis will look at culmen (bill) length and flipper length. The code will explore whether there is an association between culmen length and flipper length, and whether culmen length predicts flipper length. 
+
+The analysis begins with setting up the workspace and cleaning the raw data. Next, an exploratory plot can be made to view patterns in the raw data.  
+
+```{r prepare-the-workspace-2, results='hide', message=FALSE, warning=FALSE}
+# Install and load the necessary packages
+install.packages(c("ggplot2", "palmerpenguins", "dplyr", "janitor", "magrittr", "ragg", "svglite"), repos = "https://cran.ma.imperial.ac.uk/")
+library(ggplot2)
+library(palmerpenguins) #contains the penguin dataset
+library(dplyr)
+library(janitor) # for data cleaning
+library(magrittr) # for the forward pipe operator
+library(ragg) # for .png file saving
+library(svglite) # for svg file saving
+
+# Load the data
+write.csv(penguins_raw, "data/penguins_raw.csv") # this saves the data into the data folder
+penguins_raw <- read.csv("data/penguins_raw.csv") # read in the data from the data folder
+
+# Load the functions files into the document
+source("functions/cleaning_penguins.r") # this contains the cleaning functions
+source("functions/plotting_penguins.r") # this contains the plotting functions
+```
+
+```{r clean-the-data, message=FALSE, warning=FALSE}
+# Clean and save the data
+penguins_clean_q2 <- penguins_raw %>%
+  clean_column_names() %>% # to remove certain columns, make lower case, and snake case
+  shorten_species() %>% # to shorten species names and make more manageable
+  remove_empty_columns_rows() %>% # to remove empty columns and rows
+  remove_NA() # to remove any observations with NA values
+
+write.csv(penguins_clean_q2, "data/penguins_clean_q2.csv") # save the data and the changes made as a new .csv
+  # this means that changes can be tracked and no data gets overwritten
+```
+
+```{r view-the-data, include=FALSE}
+# Run this to view the first few rows of the data
+head(penguins_clean_q2)
+```
+
+```{r data-exploration, results='hide', message=FALSE, warning=FALSE}
+# Subset the data so only the relevant information remains
+culmen_flipper <- subset_columns(penguins_clean_q2, c("species", "culmen_length_mm", "flipper_length_mm"))
+write.csv(culmen_flipper, "data/culmen_flipper.csv") # save the data and the changes made
+
+# Create the exploratory figure
+culmen_flipper_figure <- plot_culmen_flipper_figure(culmen_flipper, culmen_length_mm, flipper_length_mm)
+
+# Print the figure
+print(culmen_flipper_figure)
+```
+
+```{r save-the-culmen-flipper-figures, results='hide', message=FALSE, warning=FALSE}
+# Save the figure as a .png
+save_culmen_flipper_figure_png(culmen_flipper, "figures/culmen_flipper_figure.png", 20, 600, 1)
+
+# Save the figure as a .svg
+save_culmen_flipper_figure_svg(culmen_flipper, "figures/culmen_flipper_figure.svg", 20, 1)
+```
+
+### Hypothesis
+
+The exploratory figure shows that there appears to be a positive correlation and a linear relationship between culmen length and flipper length within each of the species.  
+I therefore hypothesise that culmen length (the explanatory variable) will predict the flipper length (the response variable).
+
+The analysis will focus only on __Chinstrap penguins__. This is because the Chinstrap penguins are only found in Dream island and removes the possibility of different islands being a confounding factor. For instance, Adelie penguins are found in Biscoe, Dream, and Torgersen, therefore it would be difficult to rule out associations between changes in island and culmen or flipper length. It would therefore make it harder to draw conclusions about the relationship between culmen length and flipper length.  
+
+The statistical test used will be __linear regression__. This is because there appears to be a linear relationship and the assumptions (e.g. that Y is normally distributed at each value of X and that the variance of Y is the same at all values of X) are met.  
+
+The statistical hypotheses are therefore:  
+__H0: the slope of the regression line (β) = 0 (i.e. culmen length does not predict flipper length)__  
+__HA: the slope of the regression line (β) ≠ 0 (i.e. culmen length either increases or decreases flipper length)__  
+
+### Statistical Methods
+
+In this section, four actions are completed:  
+1. Data is subset-ed again to select only Chinstrap penguins for analysis.  
+2. Linear regression is run; a linear regression model is fitted with flipper length as the dependent variable and culmen length as the independent variable.  
+3. A results figure is generated, which shows the statistical method chosen by fitting a linear regression line on a new scatterplot.  
+4. A residual plot is generated to test the suitability of linear regression for this analysis.
+
+```{r subset-chinstrap-only, results='hide', message=FALSE, warning=FALSE}
+# Subset the data to only look at the Chinstrap penguins
+chinstrap_only <- penguins_clean_q2 %>%
+  filter_by_species("Chinstrap") %>%
+  subset_columns(c("species", "culmen_length_mm", "flipper_length_mm"))
+write.csv(chinstrap_only, "data/chinstrap_only.csv") # save the data
+```
+
+```{r run-linear-regression}
+# Run a statistical test: linear regression on Chinstrap penguins
+chinstrap_linear_model <- lm(flipper_length_mm ~ culmen_length_mm, data = chinstrap_only)
+```
+
+```{r plot-chinstrap-figure, results='hide', message=FALSE, warning=FALSE}
+# Create the chinstrap results figure
+chinstrap_figure <- plot_chinstrap_figure(chinstrap_only, culmen_length_mm, flipper_length_mm)
+
+# Print the results figure
+print(chinstrap_figure)
+```
+
+```{r save-chinstrap-figure, results='hide', message=FALSE, warning=FALSE}
+# Save the figure as a .png
+save_chinstrap_figure_png(chinstrap_only, "figures/chinstrap_figure.png", 20, 600, 1)
+
+# Save the figure as a .svg
+save_chinstrap_figure_svg(chinstrap_only, "figures/chinstrap_figure.svg", 20, 1)
+```
+
+```{r residual-plot}
+# Find the residuals from the linear regression model
+chinstrap_residuals <- residuals(chinstrap_linear_model)
+
+# Plot the residuals
+chinstrap_residual_plot <- plot(fitted(chinstrap_linear_model), 
+                                chinstrap_residuals, 
+                                main = "Chinstrap Linear Regression Residual Plot", 
+                                xlab = "Fitted Values", ylab = "Residuals", 
+                                col = "cornflowerblue", pch = 16) +
+abline(h = 0, col = "grey1", lty = 2) # this adds a horizontal line to make visualising deviations from the horizontal line easier
+```
+
+```{r save-residual-plot, results='hide', message=FALSE, warning=FALSE}
+# Save the figure as a .png
+save_chinstrap_figure_png(chinstrap_only, "figures/chinstrap_figure.png", 20, 600, 1)
+
+# Save the figure as a .svg
+save_chinstrap_figure_svg(chinstrap_only, "figures/chinstrap_figure.svg", 20, 1)
+```
+
+
+### Results and Discussion
+This section shows the results of the linear regression statistical test.  
+
+```{r results}
+# Detailed summary of the linear regression analysis
+summary(chinstrap_linear_model)
+
+# Show the intercept in the linear regression equation and the coefficient for the explanatory variable (slope)
+coef(chinstrap_linear_model)
+```
+The output of this summary() function provides a detailed summary of the linear model.  
+The t-value is __12.923__, and p-value associated with it is __<2e-16__.  
+The p-value is extremely small. Therefore, at a significance level of 0.05, we can reject the null hypothesis that β = 0.  
+
+The output of the coef() function shows that the equation of the line is:  
+$$y = 146.636 + (1.007)x + error$$
+The residual plot shows that the points are randomly distributed around the horizontal line and that there are no patterns. This implies that assumptions of linear regression are met and that linear regression was a suitable statistical tool.
+
+### Conclusion
+
+This analysis has shown that there is a positive correlation between culmen length and flipper length and that culmen length may be a predictor for flipper length.    
+But, correlation does not imply causation so we cannot conclude that an increase in culmen length causes an increase in flipper length.
+Culmen length might act as a predictor for flipper length because both increase with age/size of the penguin.
+
+This analysis focused on culmen and flipper lengths but neglected additional factors, such as island and region, which could be affecting both measurements. The data set also does not include other possible confounding factors. For instance, a study by Mínguez et al. (2001) found that colony position impacts the size of the beak.  
+
+Additionally, age of the penguins in the study is unknown and may affect the relationship between culmen and flipper. A study by Mínguez et al. (1998) found that there are age-related variations in Chinstrap penguins. Mínguez et al. find that adult breeding individuals have longer bills than one-year olds but the same flipper sizes. This suggests that the relationship between culmen and flipper lengths differs over lifespan and the analysis here may not be applicable for penguins of all ages.
+
+There might be sexual dimorphism in Chinstrap penguins, too. Through further data analysis (see below), it seems that male and female Chinstrap observations are found in groups (rather than randomly) and that the linear regression line for males and females is different. A further study could be done to explore the impact of sex on the relationship between culmen and flipper lengths.
+
+
+```{r}
+# Subset the Chinstrap penguins and include the sex column
+chinstrap_only_sexes <- penguins_clean_q2 %>%
+  filter_by_species("Chinstrap") %>%
+  subset_columns(c("sex", "species", "culmen_length_mm", "flipper_length_mm"))
+
+# Save the data
+write.csv(chinstrap_only, "data/chinstrap_only_sexes.csv")
+
+# Plot the chinstrap_only
+chinstrap_sexes_figure <- plot_chinstrap_sexes_figure(chinstrap_only_sexes, flipper_length_mm, culmen_length_mm)
+
+# Print the figure
+print(chinstrap_sexes_figure)
+
+```
+
+## QUESTION 3: Open Science
+***
+
+### a) Github
+
+Below is the link to my GitHub repo, which contains the .Rmd for question 2 and all the necessary files and sub-folders.
+
+*GitHub link:* https://github.com/pepperepperepper/reproducible_figures_assignment
+
+### b) Share your repo with a partner, download, and try to run their data pipeline.
+
+*Partner's GitHub link:* https://github.com/mimzy64/Reproducible_Figures_R
+
+### c) Reflect on your experience running their code. (300-500 words)
+
+#### *What elements of your partner's code helped you to understand their data pipeline?*
+
+#### *Did it run? Did you need to fix anything?*
+
+#### *What suggestions would you make for improving their code to make it more understandable or reproducible, and why?*
+
+#### *If you needed to alter your partner's figure using their code, do you think that would be easy or difficult, and why?*
+
+### d) Reflect on your own code based on your experience with your partner's code and their review of yours. (300-500 words)
+
+#### *What improvements did they suggest, and do you agree?*
+
+#### *What did you learn about writing code for other people?*
+
+## References
+***
+Crameri, F., Shephard, G.E. & Heron, P.J. The misuse of colour in science communication. Nat Commun 11, 5444 (2020). https://doi.org/10.1038/s41467-020-19160-7 
+
+Katsnelson, A. (2021) Colour me better: fixing figures for colour blindness. Nature (London). [Online] 598 (7879), 224–225.  
+
+Mínguez, E. et al. (2001) Bill Size in Relation to Position in the Colony in the Chinstrap Penguin. Waterbirds (De Leon Springs, Fla.). [Online] 24 (1), 34–38.  
+
+Mínguez, E. et al. (1998) Age-Related Variations in Bill Size of Chinstrap Penguins. Colonial waterbirds. [Online] 21 (1), 66–68.  
+
+Scott, D.W. (2009), Sturges' rule. WIREs Comp Stat, 1: 303-306. https://doi-org.ezproxy-prd.bodleian.ox.ac.uk/10.1002/wics.35.   
+
+Whitlock, M. & Schluter, D. (2020) The analysis of biological data. Third edition. New York: Macmillan International Higher Education.  
+
+
+
+
