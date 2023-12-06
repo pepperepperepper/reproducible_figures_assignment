@@ -281,14 +281,14 @@ My partner provided thorough explanations for what they were doing, especially i
 
 #### *Did it run? Did you need to fix anything?*  
 
-Yes, it ran smoothly and produced all the expected outputs and figures. I did not need to fix anything to produce the results. 
+Yes, it ran smoothly and produced all the expected outputs and figures. They uploaded all the necessary files and code. I did not need to fix anything to produce the same results discussed. The analysis was both reproducible and replicable.
 
 #### *What suggestions would you make for improving their code to make it more understandable or reproducible, and why?*  
-My partner could create a separate file containing all the functions to make the code neater and more understandable. They create a cleaning folder but they could add a cleaning.r file to add cleaning functions into and call it into the main .rmd file. This would also enable them to use it for other projects and make their code more organised. My partner could also make a plotting.r file as well to place plotting functions into for similar reasons.
+My partner could create a separate file containing all the functions to make the code neater and more understandable. They create a cleaning folder but they could add a cleaning.r file to add cleaning functions into and call it into the main .rmd file. This would also enable them to use it for other projects and make their code more organised. It would also prevent repeated copying of code if it needs to be used again and make the data analysis shorter. My partner could also make a plotting.r file as well to place plotting functions into for similar reasons.
 
 My partner also cleans the data twice (once by piping several functions and overwriting the data and secondly by making a function). Although this is helpful to explain the necessity of writing a function, it might be clearer if the code was cleaned once and only one cleaned data set is created.
 
-My partner could use the summary() function only once in their code. Currently, they use the summary() function twice when creating the linear model and again in the results section. As this output takes up a fair amount of space, it might be useful to only run the function in the results. However, in the knitted .html file, my partner does hide the first output but it might not be necessary to have the function in the first place while running it.
+My partner could use the summary() function only once in their code. Currently, they use the summary() function twice when creating the linear model and again in the results section. As this output takes up a fair amount of space, it might be useful to only run the function in the results. This would make the data analysis shorter and faster to run. Having said this, in the knitted .html file, my partner does hide the first output but it might not be necessary to have the function in the first place while running it.
 
 #### *If you needed to alter your partner's figure using their code, do you think that would be easy or difficult, and why?*  
 
