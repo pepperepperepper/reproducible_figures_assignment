@@ -271,17 +271,28 @@ Below is the link to my GitHub repo, which contains the .Rmd for the assignment 
 
 ### b) Share your repo with a partner, download, and try to run their data pipeline.
 
-*Partner's GitHub link:*
+*Partner's GitHub link:* https://github.com/mimzy64/Reproducible_Figures_R
 
 ### c) Reflect on your experience running their code. (300-500 words)
 
-#### *What elements of your partner's code helped you to understand their data pipeline?*
+#### *What elements of your partner's code helped you to understand their data pipeline?*  
 
-#### *Did it run? Did you need to fix anything?*
+My partner provided thorough explanations for what they were doing, especially in saving data/avoiding overriding data and saving figures. They also signpost their text and make their titles clear using bold or larger text. The images make reading more enjoyable.
 
-#### *What suggestions would you make for improving their code to make it more understandable or reproducible, and why?*
+#### *Did it run? Did you need to fix anything?*  
 
-#### *If you needed to alter your partner's figure using their code, do you think that would be easy or difficult, and why?*
+Yes, it ran smoothly and produced all the expected outputs and figures. I did not need to fix anything to produce the results. 
+
+#### *What suggestions would you make for improving their code to make it more understandable or reproducible, and why?*  
+My partner could create a separate file containing all the functions to make the code neater and more understandable. They create a cleaning folder but they could add a cleaning.r file to add cleaning functions into and call it into the main .rmd file. This would also enable them to use it for other projects and make their code more organised. My partner could also make a plotting.r file as well to place plotting functions into for similar reasons.
+
+My partner also cleans the data twice (once by piping several functions and overwriting the data and secondly by making a function). Although this is helpful to explain the necessity of writing a function, it might be clearer if the code was cleaned once and only one cleaned data set is created.
+
+My partner could use the summary() function only once in their code. Currently, they use the summary() function twice when creating the linear model and again in the results section. As this output takes up a fair amount of space, it might be useful to only run the function in the results. However, in the knitted .html file, my partner does hide the first output but it might not be necessary to have the function in the first place while running it.
+
+#### *If you needed to alter your partner's figure using their code, do you think that would be easy or difficult, and why?*  
+
+It would be easy to alter my partner’s figure because the code is presented clearly in the .rmd file and the code for each figure is found in its own code chunk. It may be a little clearer if these chunks were labelled for the figure they are generating and if the object created was named with more information (e.g. lm_graph and lm_combined_graph could get mixed up) but the alteration is simple.
 
 ### d) Reflect on your own code based on your experience with your partner's code and their review of yours. (300-500 words)
 
