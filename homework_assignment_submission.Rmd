@@ -100,10 +100,11 @@ write.csv(penguins_raw, "data/penguins_raw.csv") # this saves the data into the 
 penguins_raw <- read.csv("data/penguins_raw.csv") # read in the data from the data folder
 
 # Load the functions files into the document
-source("functions/cleaning_penguins.r") # this contains the cleaning functions
-source("functions/plotting_penguins.r") # this contains the plotting functions
+source("functions/cleaning_penguins.R") # this contains the cleaning functions
+source("functions/plotting_penguins.R") # this contains the plotting functions
 ```
 
+After setting up the workspace, clean the data and save as a new file.
 ```{r clean-the-data, message=FALSE, warning=FALSE}
 # Clean and save the data
 penguins_clean_q2 <- penguins_raw %>%
@@ -116,11 +117,15 @@ write.csv(penguins_clean_q2, "data/penguins_clean_q2.csv") # save the data and t
   # this means that changes can be tracked and no data gets overwritten
 ```
 
+View the cleaned data set to double check that cleaning has worked.
 ```{r view-the-data, include=FALSE}
 # Run this to view the first few rows of the data
 head(penguins_clean_q2)
+# Run this to view the names of the columns
+names(penguins_clean_q2)
 ```
 
+Begin data exploration by plotting an exploratory figure.
 ```{r data-exploration, results='hide', message=FALSE, warning=FALSE}
 # Subset the data so only the relevant information remains
 culmen_flipper <- subset_columns(penguins_clean_q2, c("species", "culmen_length_mm", "flipper_length_mm"))
@@ -133,6 +138,7 @@ culmen_flipper_figure <- plot_culmen_flipper_figure(culmen_flipper, culmen_lengt
 print(culmen_flipper_figure)
 ```
 
+Save the figure as a .png or .svg (vector format). The size, resolution (.png only), and scaling can be altered to fit the purpose of the figure.
 ```{r save-the-culmen-flipper-figures, results='hide', message=FALSE, warning=FALSE}
 # Save the figure as a .png
 save_culmen_flipper_figure_png(culmen_flipper, "figures/culmen_flipper_figure.png", 20, 600, 1)
